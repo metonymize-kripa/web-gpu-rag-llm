@@ -1,0 +1,20 @@
+{"query": "Can you provide the latest sales report?", "response": "Please find the latest sales report attached.", "data": "https://example.com/sales-dashboard"}
+{"query": "What is the status of my order #12345?", "response": "Your order #12345 has been shipped and is expected to arrive by June 20th.", "data": "https://example.com/track-order/12345"}
+{"query": "Can you send me the minutes from the last meeting?", "response": "The minutes from the last meeting are attached.", "data": "https://example.com/meeting-minutes"}
+{"query": "I need assistance with my account login.", "response": "Please reset your password using this link.", "data": "https://example.com/reset-password"}
+{"query": "Can you provide the updated project timeline?", "response": "The updated project timeline is attached.", "data": "https://example.com/project-timeline"}
+{"query": "Where can I find the company's annual report?", "response": "The company's annual report is available for download.", "data": "https://example.com/annual-report"}
+{"query": "Can you send me the training schedule?", "response": "The training schedule is attached.", "data": "https://example.com/training-schedule"}
+{"query": "What are the new product features?", "response": "You can find the details of our new product features.", "data": "https://example.com/new-features"}
+{"query": "Can you provide the customer service contact info?", "response": "Our customer service contact information is available.", "data": "https://example.com/contact-us"}
+{"query": "I need the latest financial statements.", "response": "The latest financial statements are attached.", "data": "https://example.com/financial-statements"}
+{"query": "Can you send me the employee handbook?", "response": "The employee handbook is attached.", "data": "https://example.com/employee-handbook"}
+{"query": "Where can I find the software documentation?", "response": "The software documentation is available.", "data": "https://example.com/documentation"}
+{"query": "Can you provide the marketing strategy document?", "response": "The marketing strategy document is attached.", "data": "https://example.com/marketing-strategy"}
+{"query": "I need help with my subscription.", "response": "Please manage your subscription at the following link.", "data": "https://example.com/manage-subscription"}
+{"query": "Can you send me the latest press release?", "response": "The latest press release is attached.", "data": "https://example.com/press-release"}
+{"query": "What are the new company policies?", "response": "The new company policies are attached.", "data": "https://example.com/company-policies"}
+{"query": "Can you provide the event schedule?", "response": "The event schedule is attached.", "data": "https://example.com/event-schedule"}
+{"query": "Where can I find the support ticket I submitted?", "response": "You can view your support ticket at the following link.", "data": "https://example.com/support-tickets/12345"}
+{"query": "Can you send me the conference agenda?", "response": "The conference agenda is attached.", "data": "https://example.com/conference-agenda"}
+{"query": "I need the contact list for the project team.", "response": "The contact list for the project team is attached.", "data": "https://example.com/project-team"}

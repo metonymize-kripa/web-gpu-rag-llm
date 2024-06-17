@@ -30,17 +30,18 @@
             height: 100px;
             margin-bottom: 10px;
         }
-        button {
+        button, input[type="file"] {
             display: block;
             width: 100%;
             padding: 10px;
+            margin-bottom: 10px;
             background: #007BFF;
             color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
-        button:hover {
+        button:hover, input[type="file"]:hover {
             background: #0056b3;
         }
     </style>
@@ -48,13 +49,20 @@
 <body>
     <div id="app">
         <h1>In Browser RAG + LLM with WebGPU Acceleration</h1>
-        <label id="init-label">Initializing...</label>
+        <input type="file" id="file-input" accept=".jsonl">
+        <button id="process-file-button">Sample RAG prompts from file</button>
+        <textarea id="random-json-output" placeholder="Few Shot JSONs appear here" readonly></textarea>
+        <label id="init-label">Loading 5GB Llama3 into GPU...</label>
         <textarea id="prompt-textarea" placeholder="Enter your prompt here"></textarea>
         <button id="submit-button">Submit</button>
         <textarea id="response-textarea" placeholder="Response will appear here" readonly></textarea>
+        <button id="summarize-btn">Summarize</button>
+        <textarea id="summary-output" placeholder="Transformers.JS Summary" readonly></textarea>
+
     </div>
     <script type="module">
         import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+        import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.0';
 
         function setLabel(id, text) {
             const label = document.getElementById(id);
@@ -69,8 +77,7 @@
                 setLabel("init-label", report.text);
             };
 
-            //const selectedModel = "Qwen2-0.5B-Instruct-q0f16-MLC"; //About 1G of vram
-            const selectedModel = "Llama-3-8B-Instruct-q4f32_1-MLC"; //About 5G of vram
+            const selectedModel = "Llama-3-8B-Instruct-q4f32_1-MLC";
 
             const engine = await webllm.CreateMLCEngine(
                 selectedModel,
@@ -113,8 +120,81 @@
             submitButton.addEventListener("click", handleSubmit);
         }
 
+        document.getElementById('summarize-btn').addEventListener('click', async () => {
+            const inputText = document.getElementById('prompt-textarea').value;
+            if (!inputText) {
+                alert('Please enter some text to summarize.');
+                return;
+            }
+
+            document.getElementById('summary-output').textContent = 'Summarizing...';
+
+            try {
+                const generator = await pipeline('summarization', 'Xenova/distilbart-cnn-6-6');
+                const output = await generator(inputText, { max_new_tokens: 100 });
+                document.getElementById('summary-output').textContent = output[0].summary_text;
+            } catch (error) {
+                document.getElementById('summary-output').textContent = 'An error occurred during summarization.';
+                console.error(error);
+            }
+        });
+
+        const fileInput = document.getElementById('file-input');
+        const processFileButton = document.getElementById('process-file-button');
+        const randomJsonOutput = document.getElementById('random-json-output');
+
+        processFileButton.addEventListener('click', async () => {
+    let file = fileInput.files[0];
+    let fileText;
+
+    if (!file) {
+        // Fetch the default file if no file is uploaded
+        const response = await fetch('emails.jsonl');
+        if (!response.ok) {
+            alert('Failed to fetch the default file.');
+            return;
+        }
+        fileText = await response.text();
+    } else {
+        // Read the uploaded file
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            fileText = event.target.result;
+        };
+        reader.onerror = (error) => {
+            console.error('Error reading file:', error);
+        };
+        reader.readAsText(file);
+    }
+
+    // Wait for the file to be read
+    while (!fileText) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    const jsonList = [];
+    const lines = fileText.split('\n');
+    lines.forEach(line => {
+        if (line.trim()) {
+            try {
+                const json = JSON.parse(line);
+                jsonList.push(json);
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+            }
+        }
+    });
+
+    if (jsonList.length > 0) {
+        const randomIndex = Math.floor(Math.random() * jsonList.length);
+        const randomJson = jsonList[randomIndex];
+        randomJsonOutput.value = JSON.stringify(randomJson, null, 2);
+    } else {
+        randomJsonOutput.value = 'No valid JSON objects found in the file.';
+    }
+});
+
         main();
     </script>
 </body>
 </html>
-
