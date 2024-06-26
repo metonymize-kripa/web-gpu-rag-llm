@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSONL File Handler</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        input, button {
+            margin: 10px;
+        }
+        textarea {
+            width: 80%;
+            height: 150px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>JSONL File Handler</h1>
+    <input type="file" id="file-input" accept=".jsonl">
+    <button id="process-button">Process File</button>
+    <textarea id="output" readonly></textarea>
+    <button id="download-button" style="display: none;">Download Processed File</button>
+
+    <script type="module">
+        async function processFile(file) {
+            const reader = new FileReader();
+
+            reader.onload = (event) => {
+                const fileText = event.target.result;
+                const lines = fileText.split('\n');
+                const processedLines = [];
+
+                for (let line of lines) {
+                    if (line.trim()) {
+                        try {
+                            const json = JSON.parse(line);
+                            const jsonString = JSON.stringify(json);
+                            json.count = jsonString.length;
+                            processedLines.push(JSON.stringify(json));
+                        } catch (error) {
+                            console.error('Error processing line:', error);
+                        }
+                    }
+                }
+
+                const outputText = processedLines.join('\n');
+                document.getElementById('output').value = outputText;
+                enableDownload(outputText);
+            };
+
+            reader.onerror = (error) => {
+                console.error('Error reading file:', error);
+            };
+
+            reader.readAsText(file);
+        }
+
+        function enableDownload(content) {
+            const blob = new Blob([content], { type: 'application/jsonl' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'processed_file.jsonl';
+            link.textContent = 'Download Processed File';
+            link.style.display = 'block';
+            document.getElementById('download-button').replaceWith(link);
+        }
+
+        document.getElementById('process-button').addEventListener('click', () => {
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+            if (file) {
+                processFile(file);
+            } else {
+                alert('Please select a file.');
+            }
+        });
+    </script>
+</body>
+</html>

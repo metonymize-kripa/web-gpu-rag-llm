@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TF.js Matrix Multiplication Timing Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.0.0"></script>
+</head>
+<body>
+    <h1>TF.js Matrix Multiplication Timing Test</h1>
+    <button id="run-test">Run Test</button>
+    <div id="output"></div>
+
+    <script>
+        document.getElementById('run-test').addEventListener('click', async () => {
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = 'Running...';
+
+            // Generate random data
+            const matrixSize = [10000, 1000];
+            const vectorSize = [1000, 1]; // Vector should be 10x1 for proper matrix multiplication
+            const matrix = tf.randomUniform(matrixSize);
+            const vector = tf.randomUniform(vectorSize);
+
+            // Measure the total time using performance.now()
+            const startTime = performance.now();
+
+            // Profile the operations
+            const profile = await tf.profile(async () => {
+                const dotProduct = tf.matMul(matrix, vector);
+                await dotProduct.data(); // Force computation
+
+                // Calculate norms
+                const matrixNorms = tf.norm(matrix, 2, 1);
+                const vectorNorm = tf.norm(vector, 2);
+
+                // Compute cosine similarities
+                const cosineSimilarities = dotProduct.div(matrixNorms.mul(vectorNorm));
+                await cosineSimilarities.data(); // Force computation
+
+                // Cleanup
+                dotProduct.dispose();
+                matrixNorms.dispose();
+                vectorNorm.dispose();
+                cosineSimilarities.dispose();
+            });
+
+            const endTime = performance.now();
+            const totalTime = endTime - startTime;
+
+            // Extract CPU and GPU times
+            let cpuTime = 0;
+            let gpuTime = 0;
+            for (const node of profile.kernels) {
+                if (node.kernelTimeMs) {
+                    if (node.gpuMs) {
+                        gpuTime += node.gpuMs;
+                    } else {
+                        cpuTime += node.kernelTimeMs;
+                    }
+                }
+            }
+
+            outputDiv.innerHTML = `Total Time: ${totalTime.toFixed(2)} ms<br>`;
+            outputDiv.innerHTML += `CPU Time: ${cpuTime.toFixed(2)} ms<br>`;
+            outputDiv.innerHTML += `GPU Time: ${gpuTime.toFixed(2)} ms<br>`;
+
+            // Cleanup
+            matrix.dispose();
+            vector.dispose();
+        });
+    </script>
+</body>
+</html>
